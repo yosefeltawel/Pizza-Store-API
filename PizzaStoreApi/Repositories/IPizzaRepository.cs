@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using PizzaStoreAPi.Models;
 
 namespace PizzaStoreAPi.Repositories
 {
     public interface IPizzaRepository
     {
-        public IEnumerable<Pizza> PizzaList { get; }
-        public Pizza GetPizzaById(int id);
+        Task<List<PizzaDto>> GetAllPizzasAsync();
     }
 }

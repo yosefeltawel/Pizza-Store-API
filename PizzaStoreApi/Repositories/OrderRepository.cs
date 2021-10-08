@@ -1,37 +1,78 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
-using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using PizzaStore.Data.DatabaseSpecific;
+using PizzaStore.Data.EntityClasses;
+using PizzaStore.Data.HelperClasses;
+using PizzaStore.Data.Linq;
 using PizzaStoreAPi.Models;
+using SD.LLBLGen.Pro.LinqSupportClasses;
+using ViewModels.DtoClasses;
+using ViewModels.Persistence;
 
 namespace PizzaStoreAPi.Repositories
 {
     public class OrderRepository : IOrderRepository
     {
-        private const string _jsonFilePath = @"./Data/orders.json";
-
-        public OrderRepository()
+        public async Task AddOrder(OrderDto order)
         {
-            OrderList = JsonManager.ReadJsonFile<List<Order>>(_jsonFilePath);
+            var adapter = new DataAccessAdapter();
+            try
+            {
+                await adapter.StartTransactionAsync(IsolationLevel.ReadUncommitted, nameof(AddOrder));
+                var newOrder = new OrderEntity()
+                {
+                    Note = order.Note,
+                    IsNew = true
+                };
+
+                await adapter.SaveEntityAsync(newOrder, true);
+
+                var orderPizzas = order.Pizzas
+                    .ConvertAll(p => new OrderPizzaEntity()
+                    {
+                        OrderId = newOrder.Id,
+                        PizzaId = p.Id
+                    });
+
+                await adapter.SaveEntityCollectionAsync(new EntityCollection<OrderPizzaEntity>(orderPizzas), true,
+                    false);
+
+                var pizzaWithTopping = orderPizzas.SelectMany((p, idx) =>
+                {
+                    var topping = order.Pizzas[idx].ToppingList;
+
+                    return topping
+                        .ConvertAll(t => new PizzaWithToppingEntity()
+                        {
+                            OrderPizzaId = p.Id,
+                            ToppingId = t
+                        });
+                });
+
+                await adapter.SaveEntityCollectionAsync(
+                    new EntityCollection<PizzaWithToppingEntity>(pizzaWithTopping));
+                adapter.Commit();
+            }
+            catch (Exception)
+            {
+                adapter.Rollback();
+            }
         }
 
-        public List<Order> OrderList { get; set; }
-
-        public Order GetOrderById(int id)
-        {
-            return OrderList.Where(o => o.Id == id).FirstOrDefault();
-        }
-
-        public void AddOrder(Order order)
-        {
-            order.Id = OrderList.Count + 1;
-            OrderList.Add(order);
-        }
-        
         public void SaveOrders()
         {
             Console.WriteLine("Orders dispose");
-            JsonManager.SaveJsonFile(OrderList, _jsonFilePath);
+        }
+
+        public async Task<List<OrderViewModel>> GetAllOrdersAsync()
+        {
+            var adapter = new DataAccessAdapter();
+            var meta = new LinqMetaData(adapter);
+            var orders = await meta.Order.ProjectToOrderViewModel().ToListAsync();
+            return orders;
         }
     }
 }

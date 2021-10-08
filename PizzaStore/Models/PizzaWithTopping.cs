@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PizzaStoreAPi.Models
+namespace PizzaStore.Models
 {
     public class PizzaWithTopping
     {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PizzaStoreAPi.Models;
@@ -20,9 +21,10 @@ namespace PizzaStoreAPi.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Pizza> Get()
+        public async Task<IEnumerable<PizzaDto>> Get()
         {
-            return _repository.PizzaList;
+            var pizzas = await _repository.GetAllPizzasAsync();
+            return pizzas;
         }
     }
 }

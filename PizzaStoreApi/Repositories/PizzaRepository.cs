@@ -1,20 +1,21 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
+using Mapster;
+using PizzaStore.Data.DatabaseSpecific;
+using PizzaStore.Data.Linq;
 using PizzaStoreAPi.Models;
+using SD.LLBLGen.Pro.LinqSupportClasses;
 
 namespace PizzaStoreAPi.Repositories
 {
     public class PizzaRepository : IPizzaRepository
     {
-        public PizzaRepository()
+        public async Task<List<PizzaDto>> GetAllPizzasAsync()
         {
-            PizzaList = JsonManager.ReadJsonFile<IEnumerable<Pizza>>(@"./Data/pizza.json");
-        }
-        public IEnumerable<Pizza> PizzaList { get; set; }
-
-        public Pizza GetPizzaById(int id)
-        {
-            return PizzaList.Where(p => p.Id == id).FirstOrDefault();
+            using var adapter = new DataAccessAdapter();
+            var meta = new LinqMetaData(adapter);
+            var pizzas = await meta.Pizza.ToListAsync();
+            return pizzas.ConvertAll(p => p.Adapt<PizzaDto>());
         }
     }
 }

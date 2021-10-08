@@ -1,10 +1,14 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using PizzaStoreAPi.Repositories;
+using SD.LLBLGen.Pro.DQE.SqlServer;
+using SD.LLBLGen.Pro.ORMSupportClasses;
 
 namespace PizzaStoreAPi
 {
@@ -20,6 +24,7 @@ namespace PizzaStoreAPi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            ConfigureLlbl(Configuration);
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -42,12 +47,20 @@ namespace PizzaStoreAPi
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+        }
+        
+        private void ConfigureLlbl(IConfiguration config)
+        {
+            string cs = config.GetConnectionString("PizzaStore");
+            RuntimeConfiguration.AddConnectionString("ConnectionString.SQL Server (SqlClient)", cs);
+            RuntimeConfiguration.ConfigureDQE<SQLServerDQEConfiguration>(c =>
+            {
+                c.AddDbProviderFactory(typeof(SqlClientFactory));
+                c.SetTraceLevel(TraceLevel.Verbose);
+            });
         }
     }
 }

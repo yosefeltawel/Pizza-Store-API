@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PizzaStoreAPi.Models;
@@ -8,7 +9,7 @@ namespace PizzaStoreAPi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ToppingController : Controller
+    public class ToppingController : ControllerBase
     {
         private readonly ILogger<ToppingController> _logger;
         private readonly IToppingRepository _repository;
@@ -20,9 +21,10 @@ namespace PizzaStoreAPi.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Topping> Get()
+        public async Task<IEnumerable<ToppingDto>> Get()
         {
-            return _repository.ToppingList;
+            var toppings = await _repository.GetAllToppingsAsync();
+            return toppings;
         }
     }
 }

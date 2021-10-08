@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PizzaStoreAPi.Models;
 using PizzaStoreAPi.Repositories;
+using ViewModels.DtoClasses;
 
 namespace PizzaStoreAPi.Controllers
 {
@@ -22,23 +24,23 @@ namespace PizzaStoreAPi.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Order> Get()
+        public async Task<IEnumerable<OrderViewModel>> Get()
         {
-            return _repository.OrderList;
+            var orders = await _repository.GetAllOrdersAsync();
+            return orders;
         }
         
         [HttpPost]
-        public ActionResult<IEnumerable<Order>> Post(Order order)
+        public ActionResult Post(OrderDto order)
         {
             try
             {
                 _repository.AddOrder(order);
-                _repository.SaveOrders();
-                return StatusCode(StatusCodes.Status200OK, "Succeeded");
+                return StatusCode(StatusCodes.Status200OK);
             }
             catch (Exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Failed");
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
     }
