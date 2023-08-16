@@ -5,94 +5,85 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using PizzaStore.Models;
+using PizzaStore.Core;
+using PizzaStore.Core.Models;
+using PizzaStore.Read.DtoClasses;
 using Spectre.Console;
 
-namespace PizzaStore.Repositories
+namespace PizzaStore.Repositories;
+
+public static class OrderRepository
 {
-    public class OrderRepository : IDisposable
+    public static void DisplayOrderTable(OrderView order)
     {
-        private const string jsonFilePath = @"./Data/orders.json";
-        public List<OrderResponse> OrderList { get; set; }
-
-        public OrderResponse GetOrderById(int id)
+        var orderTable = new Table
         {
-            return OrderList.Where(o => o.Id == id).FirstOrDefault();
-        }
+            Title = new TableTitle($"Order Number {order.Id.ToString()}"),
+        };
 
-        public void Dispose()
+        orderTable.AddColumn(new TableColumn("Pizza"));
+        orderTable.AddColumn(new TableColumn("Price"));
+        orderTable.AddColumn(new TableColumn("Topping"));
+        orderTable.AddColumn(new TableColumn("Price"));
+
+        foreach (var pizza in order.OrderPizzas)
         {
-            Console.WriteLine("Orders dispose");
-            JsonManager.SaveJsonFile(OrderList, jsonFilePath);
-        }
-
-        public static void DisplayOrderTable(OrderResponse order, List<Pizza> pizzas, List<Topping> toppings)
-        {
-            var orderTable = new Table();
-            orderTable.AddColumn(new TableColumn("Pizza Number"));
-            orderTable.AddColumn(new TableColumn("Name"));
-            orderTable.AddColumn(new TableColumn("Price"));
-
-            foreach (var id in order.OrderPizzas)
+            var row = new List<Markup>
             {
-                var pizza = pizzas.FirstOrDefault(p => p.Id == id.PizzaId);
-                var rows = new List<Markup>
-                {
-                    new Markup(pizza.Id.ToString()),
-                    new Markup(pizza.Name),
-                    new Markup(pizza.Price.ToString()),
-                };
-                orderTable.AddRow(rows);
-            }
+                new(pizza.Pizza.Name),
+                new(pizza.Pizza.Price.ToString(Constants.PriceDisplay))
+            };
 
-            var toppingTable = new Table();
-            toppingTable.AddColumn(new TableColumn("Topping Number"));
-            toppingTable.AddColumn(new TableColumn("Name"));
-            toppingTable.AddColumn(new TableColumn("Price"));
-            toppingTable.AddColumn(new TableColumn("Pizza Number"));
-
-            foreach (var pizza in order.OrderPizzas)
+            var toppings = "";
+            var prices = "";
+            foreach (var topping in pizza.PizzaToppings)
             {
-                var pizzaId = pizza.PizzaId;
+                prices += topping.Topping.Name;
+                prices += topping.Topping.Price.ToString(Constants.PriceDisplay);
 
-                foreach (var toppingId in pizza.PizzaWithToppings)
+                if (pizza.PizzaToppings.IndexOf(topping) != pizza.PizzaToppings.Count - 1)
                 {
-                    var topping = toppings.FirstOrDefault(t => t.Id == toppingId.ToppingId);
-
-                    var rows = new List<Markup>
-                    {
-                        new Markup(topping.Id.ToString()),
-                        new Markup(topping.Name),
-                        new Markup(topping.Price.ToString()),
-                        new Markup(pizzaId.ToString()),
-                    };
-                    toppingTable.AddRow(rows);
+                    prices += Environment.NewLine;
+                    prices += Environment.NewLine;
                 }
             }
-            AnsiConsole.Render(orderTable);
-            AnsiConsole.Render(toppingTable);
-        }
-        
-        public async Task GetOrdersFromApi()
-        {
-            var httpClient = new HttpClient();
-            var httpResponse = await httpClient.GetAsync("https://localhost:5001/Order");
-            var order = await httpResponse.Content.ReadAsStringAsync();
-            var options = new JsonSerializerOptions
+
+            if (pizza.PizzaToppings.Count is 0)
             {
-                PropertyNameCaseInsensitive = true
-            };
-            var res = JsonSerializer.Deserialize<List<OrderResponse>>(order, options);
-            
-             OrderList = res;
+                toppings += "-";
+                prices += "-";
+            }
+
+            row.Add(new Markup(toppings));
+            row.Add(new Markup(prices));
+            orderTable.AddRow(row);
         }
 
-        public async Task PostOrderToApi(Order order)
+        var totalPrice = order.OrderPizzas.Sum(x => x.Pizza.Price) + order.OrderPizzas.Sum(x => x.PizzaToppings.Sum(t => t.Topping.Price));
+
+        AnsiConsole.Render(orderTable);
+        AnsiConsole.WriteLine($"Total Price: {totalPrice}");
+    }
+
+    public static async Task<List<OrderView>> GetOrdersFromApi()
+    {
+        var client = new HttpClient();
+        var response = await client.GetAsync("https://localhost:5001/api/v1/Order/get-orders");
+        var order = await response.Content.ReadAsStringAsync();
+        var options = new JsonSerializerOptions
         {
-            var httpClient = new HttpClient();
-           var body = JsonSerializer.Serialize(order);
-            var requestContent = new StringContent(body, Encoding.UTF8, "application/json");
-            var httpResponse = await httpClient.PostAsync("https://localhost:5001/Order", requestContent);
-        }
+            PropertyNameCaseInsensitive = true
+        };
+
+        var result = JsonSerializer.Deserialize<List<OrderView>>(order, options);
+
+        return result;
+    }
+
+    public static async Task PostOrderToApi(OrderModel order)
+    {
+        var client = new HttpClient();
+        var content = new StringContent(JsonSerializer.Serialize(order), Encoding.UTF8, "application/json");
+        await client.PostAsync("https://localhost:5001/api/v1/Order/add-order", content);
     }
 }
