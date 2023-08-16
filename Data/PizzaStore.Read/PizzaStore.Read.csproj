@@ -6,6 +6,7 @@
     <RootNamespace>PizzaStore.Read</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="SD.LLBLGen.Pro.ORMSupportClasses" Version="5.9.1" />
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
   </ItemGroup>
 </Project>

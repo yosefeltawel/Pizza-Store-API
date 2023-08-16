@@ -6,6 +6,7 @@
     <RootNamespace>PizzaStore.Read.Persistence</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="SD.LLBLGen.Pro.ORMSupportClasses" Version="5.9.1" />
     <PackageReference Include="System.Linq.Queryable" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>

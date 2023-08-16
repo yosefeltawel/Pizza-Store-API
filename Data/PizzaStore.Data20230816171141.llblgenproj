@@ -99,12 +99,12 @@
         <DestinationRootFolder Value="D:\Exercise-3\Data" />
         <FrameworkName Value="LLBLGen Pro Runtime Framework" />
         <LanguageName Value="C#" />
-        <PlatformName Value=".NET Standard 2.1" />
+        <PlatformName Value=".NET Standard 2.0" />
         <PresetName Value="SD.Presets.Adapter.General.Netstandard" />
         <RootNamespace Value="PizzaStore.Data" />
         <TemplateGroup Value="Adapter" />
         <TemplateBindings>
-          <Binding Name="SD.TemplateBindings.SharedTemplates.Netstandard21" />
+          <Binding Name="SD.TemplateBindings.SharedTemplates.Netstandard20" />
           <Binding Name="SD.TemplateBindings.SharedTemplates" />
           <Binding Name="SD.TemplateBindings.SqlServerSpecific" />
           <Binding Name="SD.TemplateBindings.General" />
@@ -222,7 +222,7 @@
       <Catalogs>
         <Catalog Name="PizzaStore">
           <Schemas>
-            <Schema Name="dbo" SyncSource="2" LastSyncWithDatabase="2023-08-16T15:19:21.4466723Z">
+            <Schema Name="dbo" SyncSource="2" LastSyncWithDatabase="2023-08-16T14:11:39.8616867Z">
               <Tables>
                 <Table Name="Order">
                   <PkConstraintName Name="PK_Order" />
@@ -390,12 +390,12 @@
           <DestinationRootFolder Value="D:\Exercise-3\Data" />
           <FrameworkName Value="DTO Class Model" />
           <LanguageName Value="C#" />
-          <PlatformName Value=".NET Standard 2.1" />
+          <PlatformName Value=".NET Standard 2.0" />
           <PresetName Value="SD.DTOClasses.ReadOnlyDTOs" />
           <RootNamespace Value="PizzaStore.Read" />
           <TemplateGroup Value="General" />
           <TemplateBindings>
-            <Binding Name="SD.DTOClassModel.NETStandard21" />
+            <Binding Name="SD.DTOClassModel.NETStandard20" />
             <Binding Name="SD.DTOClassModel" />
             <Binding Name="SD.TemplateBindings.General" />
           </TemplateBindings>
@@ -422,25 +422,6 @@
                   <Field Name="OrderId">
                     <EntityField Name="OrderId" />
                   </Field>
-                  <Field Name="Pizza">
-                    <Document Name="Pizza">
-                      <RootEntity Entity=":Pizza" NavigatorPath="OrderPizzas,Pizza" />
-                      <Fields>
-                        <Field Name="Id">
-                          <EntityField Name="Id" />
-                        </Field>
-                        <Field Name="Ingredients">
-                          <EntityField Name="Ingredients" />
-                        </Field>
-                        <Field Name="Name">
-                          <EntityField Name="Name" />
-                        </Field>
-                        <Field Name="Price">
-                          <EntityField Name="Price" />
-                        </Field>
-                      </Fields>
-                    </Document>
-                  </Field>
                   <Field Name="PizzaId">
                     <EntityField Name="PizzaId" />
                   </Field>
@@ -453,22 +434,6 @@
                         </Field>
                         <Field Name="OrderPizzaId">
                           <EntityField Name="OrderPizzaId" />
-                        </Field>
-                        <Field Name="Topping">
-                          <Document Name="Topping">
-                            <RootEntity Entity=":Topping" NavigatorPath="OrderPizzas,PizzaToppings,Topping" />
-                            <Fields>
-                              <Field Name="Id">
-                                <EntityField Name="Id" />
-                              </Field>
-                              <Field Name="Name">
-                                <EntityField Name="Name" />
-                              </Field>
-                              <Field Name="Price">
-                                <EntityField Name="Price" />
-                              </Field>
-                            </Fields>
-                          </Document>
                         </Field>
                         <Field Name="ToppingId">
                           <EntityField Name="ToppingId" />
