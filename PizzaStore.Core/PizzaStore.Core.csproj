@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Data\DatabaseGeneric\PizzaStore.Data.csproj" />
+      <ProjectReference Include="..\Data\DatabaseSpecific\PizzaStore.DataDBSpecific.csproj" />
+      <ProjectReference Include="..\Data\PizzaStore.Read.Persistence\PizzaStore.Read.Persistence.csproj" />
+      <ProjectReference Include="..\Data\PizzaStore.Read\PizzaStore.Read.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Mapster" Version="7.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Serilog">
+        <HintPath>C:\Users\pc\.nuget\packages\serilog\3.0.1\lib\net6.0\Serilog.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>
